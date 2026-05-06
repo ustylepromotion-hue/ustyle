@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/line-seed-jp@5.2.2/400.css" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/line-seed-jp@5.2.2/700.css" crossorigin>
-  <link rel="stylesheet" href="./style.css?v=4">
+  <link rel="stylesheet" href="./style.css?v=5">
 </head>
 <body>
 
@@ -40,8 +40,9 @@
     <li><a href="#process" class="offcanvas-link">02. 導入フロー</a></li>
     <li><a href="#strengths" class="offcanvas-link">03. 当社の強み</a></li>
     <li><a href="#message" class="offcanvas-link">04. 代表メッセージ</a></li>
-    <li><a href="#company" class="offcanvas-link">05. 会社概要</a></li>
-    <li><a href="#contact" class="offcanvas-link">06. お問い合わせ</a></li>
+    <li><a href="#usecase" class="offcanvas-link">05. 導入事例</a></li>
+    <li><a href="#company" class="offcanvas-link">06. 会社概要</a></li>
+    <li><a href="#contact" class="offcanvas-link">07. お問い合わせ</a></li>
   </ul>
 </nav>
 
@@ -276,6 +277,35 @@
   </div>
 </section>
 
+<!-- Use case -->
+<section id="usecase" class="usecase">
+  <div class="usecase-grid-bg"></div>
+  <div class="container">
+    <div class="section-header reveal-up">
+      <span class="section-label">05. 導入事例</span>
+      <h2 class="section-title">現場で使われている<br>AIツールの実例</h2>
+      <p class="usecase-lead">私たちが構築したAIツールが、実際の業務でどのように使われているのか。<br>ネットショップ運営の現場で運用されている事例をご紹介しています。</p>
+    </div>
+
+    <a href="./usecase-ebay.html" class="usecase-card reveal-up" data-save-scroll>
+      <div class="usecase-card-shot">
+        <img src="screenshots/usecase/01-bulk-upload.png" alt="eBay自動出品ツールのスクリーンショット" loading="lazy">
+      </div>
+      <div class="usecase-card-body">
+        <span class="usecase-card-tag">CASE 01 / EC・越境販売</span>
+        <h3 class="usecase-card-title">ネットショップ向け<br>eBay自動出品ツール</h3>
+        <p class="usecase-card-desc">複数ページにまたがっていたeBay出品作業を、1画面で完結する仕組みに再構築。商品説明文の生成や英訳、ポリシー取得などをAIで自動化することで、従来8〜10分かかっていた一連の作業を1〜2分程度に短縮しました。</p>
+        <ul class="usecase-card-meta">
+          <li><span>業種</span>ECサイト運営</li>
+          <li><span>用途</span>越境ECの出品自動化</li>
+          <li><span>効果</span>作業時間の大幅短縮</li>
+        </ul>
+        <span class="usecase-card-cta">実際の導入事例を見る<span class="cta-arrow" aria-hidden="true">→</span></span>
+      </div>
+    </a>
+  </div>
+</section>
+
 <!-- Contact -->
 <section id="contact" class="contact">
   <div class="contact-hero-img">
@@ -284,7 +314,7 @@
   </div>
   <div class="container">
     <div class="section-header reveal-up">
-      <span class="section-label">06. お問い合わせ</span>
+      <span class="section-label">07. お問い合わせ</span>
       <h2 class="section-title">まずは無料相談から</h2>
       <p class="contact-lead">過去に導入でつまずいた方もまずはお気軽にご相談ください。<br>わかりやすく丁寧にご案内いたします。</p>
     </div>
@@ -343,6 +373,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-<script src="./main.js?v=4" defer></script>
+<script src="./main.js?v=5" defer></script>
 </body>
 </html>

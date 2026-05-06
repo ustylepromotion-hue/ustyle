@@ -954,3 +954,23 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     window.scrollTo({top, behavior:'smooth'});
   });
 });
+
+/* ---------- USE CASE: SAVE & RESTORE SCROLL POSITION ---------- */
+document.querySelectorAll('[data-save-scroll]').forEach(el => {
+  el.addEventListener('click', () => {
+    sessionStorage.setItem('returnScrollY', String(window.scrollY));
+  });
+});
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+window.addEventListener('pageshow', () => {
+  const raw = sessionStorage.getItem('returnScrollY');
+  if (raw === null) return;
+  if (location.hash) { sessionStorage.removeItem('returnScrollY'); return; }
+  const y = parseInt(raw, 10);
+  if (Number.isFinite(y) && y > 0) {
+    requestAnimationFrame(() => window.scrollTo(0, y));
+  }
+  sessionStorage.removeItem('returnScrollY');
+});
