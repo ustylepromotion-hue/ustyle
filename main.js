@@ -869,19 +869,25 @@ stLines.forEach(l => stObserver.observe(l));
   gsap.to('#heroCanvas', {
     yPercent: -18,
     ease:'none',
-    scrollTrigger:{trigger:hero, start:'top top', end:'bottom top', scrub:true}
+    scrollTrigger:{trigger:hero, start:'top top', end:'bottom top', scrub:true, invalidateOnRefresh:true}
   });
   gsap.to('.hero-content', {
     yPercent: -12,
     opacity: 0,
     ease:'none',
-    scrollTrigger:{trigger:hero, start:'50% top', end:'bottom top', scrub:true}
+    scrollTrigger:{
+      trigger:hero, start:'50% top', end:'bottom top', scrub:true, invalidateOnRefresh:true,
+      onLeaveBack: () => gsap.set('.hero-content', {opacity:1, yPercent:0})
+    }
   });
   gsap.to('.hero-grid-overlay', {
     yPercent: -10,
     ease:'none',
-    scrollTrigger:{trigger:hero, start:'top top', end:'bottom top', scrub:true}
+    scrollTrigger:{trigger:hero, start:'top top', end:'bottom top', scrub:true, invalidateOnRefresh:true}
   });
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(() => ScrollTrigger.refresh());
+  }
 })();
 
 /* ---------- MOBILE RELOAD / BFCache RESYNC ---------- */
