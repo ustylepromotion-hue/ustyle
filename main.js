@@ -958,27 +958,54 @@ if(form){
   }
 
   if(sendBtn){
-    sendBtn.addEventListener('click', () => {
+    sendBtn.addEventListener('click', async () => {
       sendBtn.disabled = true;
       sendBtn.textContent = '送信中...';
-      // Native form POST — no CORS issue, FormSubmit activation email arrives on first submit.
-      form.submit();
-    });
-  }
+      if(confirmStatus) confirmStatus.innerHTML = '';
 
-  // Show success message when returning from FormSubmit with ?sent=1
-  if(location.search.includes('sent=1')){
-    const wrap = form.closest('.contact-wrap');
-    if(wrap){
-      wrap.innerHTML =
-        '<div class="contact-sent">' +
-          '<p class="contact-sent-icon">✓</p>' +
-          '<p class="contact-sent-title">送信しました</p>' +
-          '<p class="contact-sent-body">お問い合わせを受け付けました。<br>担当者よりご連絡いたします。</p>' +
-          '<a href="./index.html" class="btn-ghost" style="margin-top:1.5rem;display:inline-flex">トップへ戻る</a>' +
-        '</div>';
-    }
-    history.replaceState(null, '', location.pathname + location.hash);
+      const data = {};
+      Object.values(fields).forEach(({sel, out}) => {
+        const el = form.querySelector(sel);
+        if(el) data[out.replace('cf-','')] = el.value.trim();
+      });
+      data['email'] = form.querySelector('input[name="email"]').value.trim();
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name:    form.querySelector('input[name="お名前"]').value.trim(),
+            company: form.querySelector('input[name="会社名"]').value.trim(),
+            email:   form.querySelector('input[name="email"]').value.trim(),
+            message: form.querySelector('textarea[name="ご相談内容"]').value.trim(),
+            replyto: form.querySelector('input[name="email"]').value.trim(),
+          }),
+        });
+        const payload = await res.json().catch(() => ({}));
+        if(!res.ok || payload.success === false) throw new Error(payload.message || 'HTTP ' + res.status);
+
+        sendBtn.textContent = '送信しました ✓';
+        sendBtn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+        if(confirmStatus) confirmStatus.textContent = 'お問い合わせを受け付けました。担当者よりご連絡いたします。';
+        setTimeout(() => { form.reset(); showForm(); }, 4500);
+
+      } catch(err) {
+        sendBtn.disabled = false;
+        sendBtn.textContent = '再試行する';
+        sendBtn.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
+        console.error('[contact form]', err);
+        if(confirmStatus){
+          confirmStatus.innerHTML =
+            '<strong style="color:#f87171">送信に失敗しました。</strong>' +
+            '<details style="margin-top:.5rem"><summary style="cursor:pointer;font-size:.8rem;color:rgba(240,244,248,.6)">エラーログ</summary>' +
+            '<pre style="font-size:.72rem;margin-top:.4rem;white-space:pre-wrap;color:rgba(240,244,248,.55)">' +
+            'message : ' + (err.message||'—') + '\nendpoint: ' + endpoint + '\ntime    : ' + new Date().toISOString() +
+            '</pre></details>' +
+            '<p style="margin-top:.7rem;font-size:.88rem">LINEでのご相談もご利用ください。</p>';
+        }
+      }
+    });
   }
 
   // Input focus glow
