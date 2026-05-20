@@ -983,7 +983,14 @@ if(form){
           }),
         });
         const payload = await res.json().catch(() => ({}));
-        if(!res.ok || payload.success === false) throw new Error(payload.message || 'HTTP ' + res.status);
+        if(!res.ok || payload.success === false) {
+          const e = new Error(payload.message || 'HTTP ' + res.status);
+          e.detail = payload.detail || null;
+          e.raw = payload.raw || null;
+          e.http_status = payload.http_status !== undefined ? payload.http_status : res.status;
+          e.access_key_set = payload.access_key_set !== undefined ? payload.access_key_set : '—';
+          throw e;
+        }
 
         sendBtn.textContent = '送信しました ✓';
         sendBtn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
@@ -1000,7 +1007,13 @@ if(form){
             '<strong style="color:#f87171">送信に失敗しました。</strong>' +
             '<details style="margin-top:.5rem"><summary style="cursor:pointer;font-size:.8rem;color:rgba(240,244,248,.6)">エラーログ</summary>' +
             '<pre style="font-size:.72rem;margin-top:.4rem;white-space:pre-wrap;color:rgba(240,244,248,.55)">' +
-            'message : ' + (err.message||'—') + '\nendpoint: ' + endpoint + '\ntime    : ' + new Date().toISOString() +
+            'message       : ' + (err.message||'—') + '\n' +
+            'detail        : ' + (err.detail||'—') + '\n' +
+            'http_status   : ' + (err.http_status||'—') + '\n' +
+            'access_key_set: ' + err.access_key_set + '\n' +
+            'raw           : ' + (err.raw||'—') + '\n' +
+            'endpoint      : ' + endpoint + '\n' +
+            'time          : ' + new Date().toISOString() +
             '</pre></details>' +
             '<p style="margin-top:.7rem;font-size:.88rem">LINEでのご相談もご利用ください。</p>';
         }
