@@ -971,15 +971,19 @@ if(form){
       data['email'] = form.querySelector('input[name="email"]').value.trim();
 
       try {
+        const userEmail = form.querySelector('input[name="email"]').value.trim();
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({
+            access_key: 'b306ae84-ca12-4231-a6e9-d3fd0b4eee73',
+            subject:  '【お問い合わせ】株式会社ユースタイル',
+            from_name:'U-STYLE LP',
             name:    form.querySelector('input[name="お名前"]').value.trim(),
             company: form.querySelector('input[name="会社名"]').value.trim(),
-            email:   form.querySelector('input[name="email"]').value.trim(),
+            email:   userEmail,
             message: form.querySelector('textarea[name="ご相談内容"]').value.trim(),
-            replyto: form.querySelector('input[name="email"]').value.trim(),
+            replyto: userEmail,
           }),
         });
         const payload = await res.json().catch(() => ({}));
