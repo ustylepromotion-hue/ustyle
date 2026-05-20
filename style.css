@@ -409,6 +409,10 @@ blockquote p{font-size:clamp(1rem,1.6vw,1.2rem);color:rgba(240,244,248,.8);line-
 .btn-line{padding:.9rem 2rem;border-radius:50px;background:#06C755;color:#fff;font-weight:700;font-size:.9rem;transition:transform .3s var(--ease-spring),box-shadow .3s}
 .btn-line:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(6,199,85,.35)}
 
+.contact-sent{text-align:center;padding:4rem 2rem;max-width:480px;margin:0 auto}
+.contact-sent-icon{font-size:2.8rem;color:#10b981;margin-bottom:1rem}
+.contact-sent-title{font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:.8rem}
+.contact-sent-body{color:rgba(139,152,169,.92);font-size:1rem;line-height:1.9}
 .contact-confirm{background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(59,130,246,.22);border-radius:20px;padding:3.5rem;max-width:760px}
 .contact-confirm[hidden]{display:none}
 .confirm-title{font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:.6rem}
