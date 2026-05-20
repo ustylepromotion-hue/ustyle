@@ -961,17 +961,22 @@ if(form){
     sendBtn.addEventListener('click', async () => {
       sendBtn.disabled = true;
       sendBtn.textContent = '送信中...';
-      if(confirmStatus) confirmStatus.textContent = '';
+      if(confirmStatus) confirmStatus.innerHTML = '';
+
+      let httpStatus = null;
+      let rawBody = null;
+      let payload = null;
 
       try {
+        // FormData without custom headers = CORS simple request, no preflight needed.
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: {'Accept':'application/json', 'Content-Type':'application/json'},
-          body: JSON.stringify(Object.fromEntries(new FormData(form)))
+          body: new FormData(form)
         });
-        let payload = null;
-        try { payload = await res.json(); } catch {}
-        // FormSubmit AJAX returns {success:"true", ...} on success.
+        httpStatus = res.status;
+        rawBody = await res.text();
+        try { payload = JSON.parse(rawBody); } catch {}
+
         const ok = res.ok && payload && (payload.success === 'true' || payload.success === true);
         if(!ok){
           const msg = (payload && (payload.message || payload.error)) || ('HTTP ' + res.status);
@@ -981,14 +986,34 @@ if(form){
         sendBtn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
         if(confirmStatus) confirmStatus.textContent = 'お問い合わせを受け付けました。担当者よりご連絡いたします。';
         setTimeout(() => { form.reset(); showForm(); }, 4500);
+
       } catch(err) {
         sendBtn.disabled = false;
         sendBtn.textContent = '再試行する';
         sendBtn.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
+        console.error('[contact form] submit failed:', {err, httpStatus, rawBody, endpoint});
+
         if(confirmStatus){
-          confirmStatus.textContent = '送信に失敗しました（' + (err && err.message ? err.message : 'unknown') + '）。時間をおいて再度お試しいただくか、LINEでのご相談もご利用ください。';
+          const isFetchError = err instanceof TypeError;
+          const hint = isFetchError
+            ? '通信エラー（CORS またはネットワーク切断）。FormSubmit のアクティベーションメールが未クリックの場合も同症状が出ます。'
+            : 'サーバーがエラーを返しました。';
+          confirmStatus.innerHTML =
+            '<strong style="color:#f87171">送信に失敗しました。</strong>' +
+            '<details style="margin-top:.6rem">' +
+              '<summary style="cursor:pointer;font-size:.82rem;color:rgba(240,244,248,.7)">エラーログを見る</summary>' +
+              '<pre style="margin-top:.5rem;font-size:.75rem;line-height:1.6;white-space:pre-wrap;word-break:break-all;color:rgba(240,244,248,.65)">' +
+                'error.name    : ' + (err.name || '—') + '\n' +
+                'error.message : ' + (err.message || '—') + '\n' +
+                'HTTP status   : ' + (httpStatus !== null ? httpStatus : '—') + '\n' +
+                'endpoint      : ' + endpoint + '\n' +
+                'timestamp     : ' + new Date().toISOString() + '\n' +
+                'response body : ' + (rawBody ? rawBody.slice(0, 300) : '—') + '\n' +
+                'hint          : ' + hint +
+              '</pre>' +
+            '</details>' +
+            '<p style="margin-top:.8rem;font-size:.88rem">LINEでのご相談もご利用ください。</p>';
         }
-        console.error('[contact form] submit failed:', err);
       }
     });
   }
