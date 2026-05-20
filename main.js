@@ -984,6 +984,7 @@ if(form){
             email:   userEmail,
             message: form.querySelector('textarea[name="ご相談内容"]').value.trim(),
             replyto: userEmail,
+            cc:      userEmail,
           }),
         });
         const payload = await res.json().catch(() => ({}));
