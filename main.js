@@ -903,42 +903,95 @@ window.addEventListener('orientationchange', () => {
   setTimeout(resyncViewportState, 250);
 });
 
-/* ---------- CONTACT FORM ---------- */
+/* ---------- CONTACT FORM (confirm → send) ---------- */
 const form = document.getElementById('contactForm');
 if(form){
   const endpoint = form.action;
-  const restoreBtn = (btn) => {
-    btn.innerHTML = '送信する <span class="btn-arrow">→</span>';
-    btn.style.background = '';
-    btn.disabled = false;
+  const confirmPanel = document.getElementById('contactConfirm');
+  const confirmStatus = document.getElementById('confirmStatus');
+  const sendBtn = document.getElementById('confirmSend');
+  const editBtn = document.getElementById('confirmEdit');
+
+  const fields = {
+    name:    { sel: 'input[name="お名前"]',    out: 'cf-name',    fallback: '（未入力）' },
+    company: { sel: 'input[name="会社名"]',    out: 'cf-company', fallback: '（未入力）' },
+    email:   { sel: 'input[name="email"]',     out: 'cf-email',   fallback: '（未入力）' },
+    message: { sel: 'textarea[name="ご相談内容"]', out: 'cf-message', fallback: '（未入力）' }
   };
 
-  form.addEventListener('submit', async e => {
+  const showForm = () => {
+    confirmPanel.hidden = true;
+    form.hidden = false;
+    if(confirmStatus) confirmStatus.textContent = '';
+    sendBtn.disabled = false;
+    sendBtn.innerHTML = 'この内容で送信する <span class="btn-arrow">→</span>';
+    sendBtn.style.background = '';
+  };
+
+  const showConfirm = () => {
+    Object.values(fields).forEach(({sel, out, fallback}) => {
+      const el = form.querySelector(sel);
+      const out_el = document.getElementById(out);
+      if(!el || !out_el) return;
+      const v = (el.value || '').trim();
+      out_el.textContent = v || fallback;
+      out_el.classList.toggle('confirm-empty', !v);
+    });
+    form.hidden = true;
+    confirmPanel.hidden = false;
+    confirmPanel.scrollIntoView({behavior:'smooth', block:'start'});
+  };
+
+  // First submit: validate via native HTML5, then show confirm panel instead of sending.
+  form.addEventListener('submit', e => {
     e.preventDefault();
-    const btn = form.querySelector('.btn-submit');
+    if(!form.reportValidity()) return;
+    // Sync CC field with user email so they receive a copy.
     const userEmail = form.querySelector('input[name="email"]').value.trim();
     const ccField = form.querySelector('#ccField');
     if(ccField) ccField.value = userEmail;
-
-    btn.disabled = true;
-    btn.textContent = '送信中...';
-
-    try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {'Accept':'application/json'},
-        body: new FormData(form)
-      });
-      if(!res.ok) throw new Error('送信に失敗しました');
-      btn.textContent = '送信しました ✓';
-      btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
-      setTimeout(() => { restoreBtn(btn); form.reset(); }, 4000);
-    } catch(err) {
-      btn.textContent = '送信失敗 — 再試行';
-      btn.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
-      setTimeout(() => restoreBtn(btn), 3000);
-    }
+    showConfirm();
   });
+
+  if(editBtn){
+    editBtn.addEventListener('click', () => { showForm(); form.scrollIntoView({behavior:'smooth', block:'start'}); });
+  }
+
+  if(sendBtn){
+    sendBtn.addEventListener('click', async () => {
+      sendBtn.disabled = true;
+      sendBtn.textContent = '送信中...';
+      if(confirmStatus) confirmStatus.textContent = '';
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {'Accept':'application/json', 'Content-Type':'application/json'},
+          body: JSON.stringify(Object.fromEntries(new FormData(form)))
+        });
+        let payload = null;
+        try { payload = await res.json(); } catch {}
+        // FormSubmit AJAX returns {success:"true", ...} on success.
+        const ok = res.ok && payload && (payload.success === 'true' || payload.success === true);
+        if(!ok){
+          const msg = (payload && (payload.message || payload.error)) || ('HTTP ' + res.status);
+          throw new Error(msg);
+        }
+        sendBtn.textContent = '送信しました ✓';
+        sendBtn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+        if(confirmStatus) confirmStatus.textContent = 'お問い合わせを受け付けました。担当者よりご連絡いたします。';
+        setTimeout(() => { form.reset(); showForm(); }, 4500);
+      } catch(err) {
+        sendBtn.disabled = false;
+        sendBtn.textContent = '再試行する';
+        sendBtn.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
+        if(confirmStatus){
+          confirmStatus.textContent = '送信に失敗しました（' + (err && err.message ? err.message : 'unknown') + '）。時間をおいて再度お試しいただくか、LINEでのご相談もご利用ください。';
+        }
+        console.error('[contact form] submit failed:', err);
+      }
+    });
+  }
 
   // Input focus glow
   form.querySelectorAll('input,textarea').forEach(el => {
@@ -964,19 +1017,28 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 /* ---------- USE CASE: SAVE & RESTORE SCROLL POSITION ---------- */
 document.querySelectorAll('[data-save-scroll]').forEach(el => {
   el.addEventListener('click', () => {
-    sessionStorage.setItem('returnScrollY', String(window.scrollY));
+    sessionStorage.setItem('returnScroll', JSON.stringify({
+      path: location.pathname,
+      y: window.scrollY
+    }));
   });
 });
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
-window.addEventListener('pageshow', () => {
-  const raw = sessionStorage.getItem('returnScrollY');
+window.addEventListener('pageshow', (e) => {
+  const raw = sessionStorage.getItem('returnScroll');
   if (raw === null) return;
-  if (location.hash) { sessionStorage.removeItem('returnScrollY'); return; }
-  const y = parseInt(raw, 10);
+  let data;
+  try { data = JSON.parse(raw); } catch { sessionStorage.removeItem('returnScroll'); return; }
+  // Restore only when returning to the exact page that saved the position,
+  // and only if there's no in-page hash target.
+  if (location.hash || data.path !== location.pathname) {
+    return; // leave entry intact — user may still navigate back to the saved page later
+  }
+  const y = parseInt(data.y, 10);
   if (Number.isFinite(y) && y > 0) {
     requestAnimationFrame(() => window.scrollTo(0, y));
   }
-  sessionStorage.removeItem('returnScrollY');
+  sessionStorage.removeItem('returnScroll');
 });

@@ -39,7 +39,7 @@
     <li><a href="#solutions" class="offcanvas-link">01. 業務内容</a></li>
     <li><a href="#process" class="offcanvas-link">02. 導入フロー</a></li>
     <li><a href="#strengths" class="offcanvas-link">03. 当社の強み</a></li>
-    <li><a href="#message" class="offcanvas-link">04. 代表メッセージ</a></li>
+    <li><a href="#pricing" class="offcanvas-link">04. 料金について</a></li>
     <li><a href="#usecase" class="offcanvas-link">05. 導入事例</a></li>
     <li><a href="#company" class="offcanvas-link">06. 会社概要</a></li>
     <li><a href="#contact" class="offcanvas-link">07. お問い合わせ</a></li>
@@ -263,16 +263,19 @@
 </section>
 
 <!-- Message -->
-<section id="message" class="message">
+<section id="pricing" class="message">
   <div class="message-bg"><img src="assets/hero_bg.jpg" alt=""></div>
   <div class="message-overlay"></div>
   <div class="container">
     <div class="message-inner reveal-up">
-      <span class="section-label">04. 代表メッセージ</span>
+      <span class="section-label">04. 料金について</span>
       <blockquote>
-        <p>「AIを導入したが使われていない」「何から始めればいいかわからない」。そんな企業様の声を多く耳にしてきました。AIは魔法の杖ではなく、正しく使いこなして初めて価値を生むパートナーです。</p>
-        <p>私たちは、技術への深い理解と現場目線の温かさを両立し、AIに詳しくない方でも安心してシステムを作れるよう支援します。ビジネスに最適な「AIと働く仕組み」を、私たちと一緒に創り上げませんか。</p>
+        <p>「AI業務診断（55,000円〜）」「AI業務アプリ開発パートナー（初期80万円〜／月額198,000円〜）」「AI人材育成プログラム（150万円〜）」の3つのプランをご用意。</p>
+        <p>各プランの詳細・含まれる内容・ご利用の流れは、料金ページにまとめています。</p>
       </blockquote>
+      <div class="message-actions">
+        <a href="./pricing.html" class="btn-primary" data-save-scroll>料金ページを見る →</a>
+      </div>
     </div>
   </div>
 </section>
@@ -319,7 +322,7 @@
       <p class="contact-lead">過去に導入でつまずいた方もまずはお気軽にご相談ください。<br>わかりやすく丁寧にご案内いたします。</p>
     </div>
     <div class="contact-wrap">
-      <form class="contact-form reveal-up" id="contactForm" action="https://formsubmit.co/info@ai-u-style.co.jp" method="POST">
+      <form class="contact-form reveal-up" id="contactForm" action="https://formsubmit.co/ajax/info@ai-u-style.co.jp" method="POST">
         <input type="hidden" name="_subject" value="【お問い合わせ】株式会社ユースタイル">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
@@ -343,11 +346,28 @@
           <textarea name="ご相談内容" rows="5" placeholder="AIの導入について検討しています..."></textarea>
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn-submit">送信する <span class="btn-arrow">→</span></button>
+          <button type="submit" class="btn-submit">入力内容を確認する <span class="btn-arrow">→</span></button>
           <span class="form-or">または</span>
           <a href="https://lin.ee/oq0a0Ic" class="btn-line" target="_blank" rel="noopener">LINEで無料相談 →</a>
         </div>
       </form>
+
+      <!-- Confirmation panel: hidden until form is submitted with valid input -->
+      <div class="contact-confirm reveal-up" id="contactConfirm" hidden>
+        <h3 class="confirm-title">この内容で送信します</h3>
+        <p class="confirm-note">内容に誤りがないかご確認ください。修正する場合は「内容を修正する」を押してください。</p>
+        <dl class="confirm-list">
+          <div class="confirm-row"><dt>お名前</dt><dd id="cf-name"></dd></div>
+          <div class="confirm-row"><dt>会社名</dt><dd id="cf-company"></dd></div>
+          <div class="confirm-row"><dt>メールアドレス</dt><dd id="cf-email"></dd></div>
+          <div class="confirm-row"><dt>ご相談内容</dt><dd id="cf-message"></dd></div>
+        </dl>
+        <div class="form-actions">
+          <button type="button" class="btn-ghost" id="confirmEdit">← 内容を修正する</button>
+          <button type="button" class="btn-submit" id="confirmSend">この内容で送信する <span class="btn-arrow">→</span></button>
+        </div>
+        <p class="confirm-status" id="confirmStatus" aria-live="polite"></p>
+      </div>
     </div>
   </div>
 </section>
